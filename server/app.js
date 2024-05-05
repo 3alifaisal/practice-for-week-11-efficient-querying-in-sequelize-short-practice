@@ -36,33 +36,45 @@ app.get('/test-benchmark-logging', async (req, res) => {   // > 100 ms execution
 // STEP #1: Benchmark a Frequently-Used Query
 app.get('/books', async (req, res) => {
 
-    let books = await Book.findAll({
+    // let books = await Book.findAll({
+    //     include: Author,
+    // });
+    let query = {
         include: Author,
-    });
+        where: {}
+
+    }
 
     // Filter by price if there is a maxPrice defined in the query params
     if (req.query.maxPrice) {
-        books = books.filter(book => book.price < parseInt(req.query.maxPrice));
+        // books = books.filter(book => book.price < parseInt(req.query.maxPrice)); // previous code 
+        query.where.price = {
+            [Op.lt]: req.query.maxPrice
+        }
+
     };
+    const books = await Book.findAll(query)
     res.json(books);
 });
 
     // 1a. Analyze:
 
         // Record Executed Query and Baseline Benchmark Below:
-
+        // Elapsed time: 100ms average
         // - What is happening in the code of the query itself?
-
+        // first without importanting 
+    //    SELECT * FROM books JOIN AUTHOR on AuthorID = author.id
 
         // - What exactly is happening as SQL executes this query? 
- 
+        // yeah the filtering is happening as javaxcript 
+        // no site of N+1 queries and indexes could be used 
 
 
 
 // 1b. Identify Opportunities to Make Query More Efficient
 
     // - What could make this query more efficient?
-
+    // used the Lt shit
 
 // 1c. Refactor the Query in GET /books
 
@@ -73,7 +85,7 @@ app.get('/books', async (req, res) => {
     // Record Executed Query and Baseline Benchmark Below:
 
     // Is the refactored query more efficient than the original? Why or Why Not?
-
+    // fuck yeah
 
 
 
@@ -94,20 +106,20 @@ app.patch('/authors/:authorId/books', async (req, res) => {
         });
     }
 
-    for (let book of author.Books) {
-        book.price = req.body.price;
-        await book.save();
-    }
-
-    const books = await Book.findAll({
-        where: {
-            authorId: author.id
+     const booksUpd = await Book.update(
+        {price: req.body.price},
+        {where: 
+            {            
+                authorId: req.params.authorId
+            }
         }
-    });
+    );
+   
+    
 
     res.json({
-        message: `Successfully updated all authors.`,
-        books
+        message: `Successfully updated all books.`,
+        books: author.Books
     });
 });
 

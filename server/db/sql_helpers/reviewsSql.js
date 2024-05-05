@@ -9,11 +9,12 @@ module.exports.createReviews = `
     reviewerId INTEGER(11) NOT NULL,
     content TEXT NOT NULL,
     date DATE NOT NULL
+    FOREIGN KEY (bookId) REFERENCES Books(id),
+FOREIGN KEY (reviewerId) REFERENCES Reviewers(id)
   );
 `;
 
-// FOREIGN KEY (bookId) REFERENCES Books(id),
-// FOREIGN KEY (reviewerId) REFERENCES Reviewers(id)
+
 
 module.exports.insertReviews = `
   INSERT INTO 
